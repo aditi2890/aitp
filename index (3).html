@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plum — AI Research Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --p:#6B21A8;--pd:#3B0764;--pm:#9333EA;--pl:#E9D5FF;--pale:#FAF5FF;
+      --bg:#F6F2FC;--card:#FFFFFF;--t1:#1A0A2E;--t2:#4C1D95;--t3:#7C3AED;--t4:#C4B5FD;
+      --br:#DDD6FE;--brl:#EDE9FE;
+      --s1b:#D97706;--s1bg:#FEF9EE;--s1t:#92400E;--s1br:#FDE68A;
+      --s2b:#0D9488;--s2bg:#F0FDFA;--s2t:#134E4A;--s2br:#99F6E4;
+      --s3b:#DB2777;--s3bg:#FDF2F8;--s3t:#831843;--s3br:#FBCFE8;
+      --s4b:#EA580C;--s4bg:#FFF7ED;--s4t:#7C2D12;--s4br:#FED7AA;
+    }
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:13px}
+    nav{background:var(--card);border-bottom:1px solid var(--br);height:48px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .brand{display:flex;align-items:center;gap:9px}
+    .logo{width:28px;height:28px;border-radius:6px;background:var(--pd);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+    .brand-name{font-size:14px;font-weight:700;color:var(--pd)}.brand-name span{color:var(--p)}
+    .brand-sep{color:var(--br);margin:0 4px}.brand-sub{font-size:12px;color:var(--t3)}
+    .badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--p);background:var(--pl);border:1px solid var(--br);padding:3px 9px;border-radius:20px}
+    .layout{flex:1;display:grid;grid-template-columns:320px 1fr;min-height:0;overflow:hidden}
+    .left{border-right:1px solid var(--br);background:var(--card);overflow-y:auto;padding:16px 18px 24px}
+    .sec{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin:16px 0 8px;display:flex;align-items:center;gap:7px}
+    .sec:first-child{margin-top:0}.sec::after{content:'';flex:1;height:1px;background:var(--br)}
+    label{display:block;font-size:11px;font-weight:600;color:var(--t1);margin-bottom:4px}
+    input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--br);border-radius:6px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--t1);outline:none;transition:border-color .15s,box-shadow .15s;resize:none}
+    input:focus,textarea:focus,select:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(107,33,168,.08)}
+    input::placeholder,textarea::placeholder{color:var(--t4)}
+    .r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.f{margin-bottom:9px}
+    textarea{height:58px;line-height:1.5}
+    .chips{display:flex;flex-wrap:wrap;gap:5px}
+    .chip{font-size:10px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid var(--br);background:var(--bg);color:var(--t3);cursor:pointer;transition:all .12s;user-select:none}
+    .chip:hover{border-color:var(--p);color:var(--p)}.chip.on{color:#fff;border-color:transparent}
+    .chip.on.c1{background:var(--s1b)}.chip.on.c2{background:var(--s2b)}.chip.on.c3{background:var(--s3b)}.chip.on.c4{background:var(--s4b)}
+    .run-btn{width:100%;padding:11px;border:none;border-radius:7px;background:var(--p);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(107,33,168,.3);display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px}
+    .run-btn:hover:not(:disabled){background:var(--pd);transform:translateY(-1px);box-shadow:0 4px 14px rgba(107,33,168,.4)}
+    .run-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+    .reset-btn{width:100%;padding:9px;border:1px solid var(--br);border-radius:7px;background:transparent;color:var(--t3);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .15s;margin-top:7px;display:none}
+    .reset-btn:hover{border-color:var(--p);color:var(--p)}.reset-btn.show{display:block}
+    .pw{display:none;margin-top:12px}.pw.show{display:block}
+    .prow{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-bottom:5px}
+    .pt{height:3px;background:var(--pl);border-radius:2px;overflow:hidden}
+    .pf{height:100%;width:0%;border-radius:2px;background:linear-gradient(90deg,var(--p),var(--pm));transition:width .5s ease}
+    .right{overflow-y:auto;padding:18px 22px;background:var(--bg)}
+    .empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--t4);text-align:center;padding:40px}
+    .empty.hide{display:none}
+    .ei{font-size:36px;opacity:.4}.et{font-family:'DM Serif Display',serif;font-size:18px;color:var(--pl)}.es{font-size:12px;line-height:1.6;max-width:260px}
+    .results{display:flex;flex-direction:column;gap:12px}
+    .card{background:var(--card);border:1px solid var(--brl);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(107,33,168,.06),0 4px 12px rgba(107,33,168,.04);opacity:0;transform:translateY(10px);transition:opacity .35s ease,transform .35s ease}
+    .card.in{opacity:1;transform:translateY(0)}
+    .ch{padding:11px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid}
+    .cn{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;color:#fff;letter-spacing:.3px}
+    .ct{font-size:12px;font-weight:600}
+    .cb{padding:13px 14px}
+    .st{font-size:12px;line-height:1.75;color:var(--t2);margin-bottom:12px}
+    .ah{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t4);margin-bottom:7px}
+    .al{display:flex;flex-direction:column;gap:5px}
+    .ac{display:flex;align-items:flex-start;gap:8px;background:var(--bg);border:1px solid var(--brl);border-radius:6px;padding:8px 11px}
+    .an{width:16px;height:16px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;margin-top:1px}
+    .at{font-size:11.5px;line-height:1.55;color:var(--t2);flex:1}
+    .ap{flex-shrink:0;font-size:8px;font-weight:700;padding:2px 6px;border-radius:9px;align-self:center}
+    .hi{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+    .md{background:#FFFBEB;color:#D97706;border:1px solid #FDE68A}
+    .lo{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0}
+    .sc{background:var(--card);border:1.5px solid var(--p);border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(107,33,168,.1),0 8px 24px rgba(107,33,168,.07);margin-top:12px;opacity:0;transform:translateY(8px);transition:opacity .4s ease .1s,transform .4s ease .1s}
+    .sc.in{opacity:1;transform:translateY(0)}
+    .sh{background:var(--pd);padding:10px 16px;display:flex;align-items:center;gap:8px}
+    .sh h3{font-family:'DM Serif Display',serif;font-size:14px;font-weight:400;color:#fff}.sh span{font-size:10px;color:rgba(255,255,255,.4);margin-left:auto}
+    table{width:100%;border-collapse:collapse;font-size:11.5px}
+    th{background:var(--pale);padding:7px 13px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--br)}
+    td{padding:9px 13px;border-bottom:1px solid var(--brl);color:var(--t2);vertical-align:top;line-height:1.5}
+    tr:last-child td{border-bottom:none}td:first-child{font-weight:600;color:var(--t1)}td.m{font-weight:700;color:var(--p);font-size:11px}
+    .log{flex-shrink:0;height:180px;border-top:1px solid #2D1B4E;background:#130921;display:flex;flex-direction:column;transition:height .2s ease}
+    .log.collapsed{height:32px}
+    .lb{height:32px;background:#0C0618;padding:0 12px;display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;user-select:none}
+    .lb:hover{background:#110820}
+    .ld{width:8px;height:8px;border-radius:50%}.ld:nth-child(1){background:#FF5F57}.ld:nth-child(2){background:#FEBC2E}.ld:nth-child(3){background:#28C840}
+    .lt{margin-left:3px;font-size:10px;color:rgba(255,255,255,.3);font-family:'Consolas',monospace;flex:1}
+    .ls{font-size:9px;font-family:'Consolas',monospace;color:rgba(255,255,255,.18)}
+    .la{font-size:8px;color:rgba(255,255,255,.2);transition:transform .2s}
+    .log.collapsed .la{transform:rotate(180deg)}.log.collapsed .lbody{display:none}
+    .lbody{flex:1;overflow-y:auto;padding:8px 12px;font-family:'Consolas','Courier New',monospace;font-size:10.5px;line-height:1.85}
+    .tl{display:flex;gap:10px}.tt{color:rgba(255,255,255,.13);min-width:46px;flex-shrink:0}.tm{color:rgba(180,160,240,.55)}
+    .tm.info{color:#A78BFA;font-weight:600}.tm.ok{color:#34D399}.tm.done{color:#C4B5FD;font-weight:700}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--br);border-radius:2px}
+    .lbody::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07)}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <div class="logo">Pl</div>
+    <span class="brand-name"><span>plum</span> goodness</span>
+    <span class="brand-sep">|</span>
+    <span class="brand-sub">AI Research Agent</span>
+  </div>
+
+</nav>
+
+<div class="layout">
+  <div class="left">
+    <div class="sec">Brand</div>
+    <div class="f"><label>Brand Name</label><input id="fb" value="Plum Goodness" /></div>
+    <div class="r2">
+      <div class="f"><label>Category</label>
+        <select id="fc"><option>Skincare</option><option>Haircare</option><option>Makeup</option><option>Personal Care</option><option>Wellness</option></select>
+      </div>
+      <div class="f"><label>Market</label>
+        <select id="fm"><option>India</option><option>SE Asia</option><option>Middle East</option><option>Global D2C</option></select>
+      </div>
+    </div>
+    <div class="f"><label>Target Audience</label><input id="fa" value="Urban millennials 22–35, ingredient-aware, value-conscious" /></div>
+    <div class="f"><label>Brand USP</label><input id="fu" value="100% vegan, cruelty-free, clean beauty" /></div>
+
+    <div class="sec">Focus Areas</div>
+    <div class="chips">
+      <span class="chip on c1" data-k="competitor">🏆 Competitors</span>
+      <span class="chip on c2" data-k="sentiment">💬 Sentiment</span>
+      <span class="chip on c3" data-k="influencer">📣 Influencers</span>
+      <span class="chip on c4" data-k="trends">📈 Trends</span>
+    </div>
+
+    <div class="sec" style="margin-top:14px">
+      Custom Question
+      <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--t4)">optional</span>
+    </div>
+    <div class="f"><textarea id="fq" placeholder="e.g. What triggers Gen Z to switch skincare brands?"></textarea></div>
+
+    <div class="pw" id="pw">
+      <div class="prow"><span id="plbl">Initialising…</span><span id="ppct">0%</span></div>
+      <div class="pt"><div class="pf" id="pf"></div></div>
+    </div>
+    <button class="run-btn" id="rbtn" onclick="run()">▶&nbsp; Run Research Agent</button>
+    <button class="reset-btn" id="xbtn" onclick="rst()">↺&nbsp; New Run</button>
+  </div>
+
+  <div class="right" id="right">
+    <div class="empty" id="emp">
+      <div class="ei">🔬</div>
+      <div class="et">Ready to research</div>
+      <div class="es">Set your brand details and hit Run.</div>
+    </div>
+    <div class="results" id="res"></div>
+    <div class="sc" id="sc">
+      <div class="sh"><h3>Strategic Summary</h3><span>Simulated data · verify before use</span></div>
+      <div id="sb"></div>
+    </div>
+  </div>
+</div>
+
+<div class="log" id="log">
+  <div class="lb" onclick="document.getElementById('log').classList.toggle('collapsed')">
+    <div class="ld"></div><div class="ld"></div><div class="ld"></div>
+    <span class="lt">plum-agent — log</span>
+    <span class="ls" id="lstat">idle</span>
+    <span class="la">▲</span>
+  </div>
+  <div class="lbody" id="lbody">
+    <div class="tl"><span class="tt">$</span><span class="tm info">Ready. Configure inputs and press Run.</span></div>
+  </div>
+</div>
+
+<script>
+// ── Static research data (pre-loaded, no API calls) ───────────────────────
+const DATA = {
+  competitor: {
+    summary: "HUL's ₹2,955 Cr acquisition of Minimalist (Jan 2025) is the defining competitive event this year — it signals that large FMCG players are now actively weaponising science-led D2C brands. Dot & Key leads on dermatologist-grade actives (niacinamide 10%, salicylic acid 2%) at Nykaa with aggressive bundling. Pilgrim is winning the Korean beauty positioning, growing 3× YoY. Mamaearth faces brand trust erosion post-IPO scrutiny and is ceding premium shelf space.\n\nPlum's clean-beauty moat is real but underdefended. No competitor has claimed the 'ingredient-transparent + vegan + dermat-tested' trifecta simultaneously — this is the gap. Pricing sits 15–20% above Minimalist on comparable actives, which is the #1 stated barrier to trial in Reddit/Quora sentiment threads.",
+    actions: [
+      { action: "Launch a head-to-head 'Clean vs Cheap' comparison content series on Instagram Reels targeting Minimalist switchers — focus on long-term skin health over short-term price.", priority: "HIGH" },
+      { action: "Introduce a ₹299 trial kit (3 hero SKUs, 15ml each) on Nykaa to close the price-trial gap before HUL pushes Minimalist into more distribution channels.", priority: "HIGH" },
+      { action: "File for Ecocert or COSMOS organic certification on top 3 SKUs to create a verifiable moat that HUL/Minimalist cannot quickly replicate.", priority: "MED" }
+    ]
+  },
+  sentiment: {
+    summary: "Plum holds a 4.5★ aggregate across 280,000+ verified reviews. The Vitamin C Serum (15% + E + Ferulic) and Green Tea Face Wash are the two strongest NPS drivers — reviewers consistently cite visible brightening within 3 weeks and the 'no-sting' formula as differentiators. The Niacinamide 5% serum is gaining traction but trails The Derma Co's 10% variant on perceived efficacy.\n\nTop 3 complaint clusters: (1) delivery packaging — 22% of 1-star reviews cite damaged products in transit; (2) pricing perception — 'expensive for the size' appears in ~18% of 3-star reviews; (3) limited men's range — a recurring thread on r/IndianSkincareAddicts with 400+ upvotes. Loyalists skew female, 24–32, Tier 1 cities. Repurchase intent on hero SKUs is high (68%) but cross-sell from face to body is weak.",
+    actions: [
+      { action: "Fix packaging: switch to double-walled mailers for serums. Address the #1 1-star driver within 60 days — this is a direct NPS lever.", priority: "HIGH" },
+      { action: "Launch a 3-SKU men's grooming line (SPF moisturiser, face wash, serum) by Q3 — the r/IndianSkincareAddicts demand signal is strong and the segment is uncontested for clean beauty.", priority: "MED" },
+      { action: "Build a post-purchase cross-sell flow on Shopify: customers who buy the Green Tea Face Wash should receive a 'complete your routine' email at Day 7 featuring the Vitamin C serum and a 10% loyalty discount.", priority: "MED" }
+    ]
+  },
+  influencer: {
+    summary: "Plum's influencer stack is structurally strong: Rashmika Mandanna (brand ambassador + investor) anchors Gen Z awareness nationally; the 'Plum List' micro-affiliate program covers 1,000+ nano and micro creators for ongoing UGC. The #PimpleCareUpdated campaign generated 5M+ impressions and drove measurable search lift. However, 60% of ad spend going to top-of-funnel brand building means the mid-funnel (consideration → trial) is thin.\n\nContent format analysis: Reels tutorials (45–60 sec, 'before/after skin texture' format) generate 4× the saves and shares of static posts. The eco-influencer Kulu collaboration in early 2025 outperformed paid reach by 3.2× in earned media value, validating the sustainability angle. Key gap: zero presence on YouTube long-form for the 28–35 'research buyer' segment who reads INCI lists before purchasing.",
+    actions: [
+      { action: "Allocate 20% of influencer budget to 3–5 dermatologist/skin-science creators on YouTube (50K–300K subs) for deep-dive ingredient reviews — this directly converts the research-buyer segment.", priority: "HIGH" },
+      { action: "Rebalance the Plum List: introduce a tiered payout structure where nano creators (5K–20K) earn 12% affiliate commission vs. 8% for macro — this incentivises authentic UGC over reach-farming.", priority: "MED" },
+      { action: "Develop a 'Plum Decoded' Reels series: 30-second ingredient explainers co-created with a rotating roster of 10 nano creators. Batch-produce 8 episodes per quarter to maintain consistency without agency overhead.", priority: "MED" }
+    ]
+  },
+  trends: {
+    summary: "India's clean beauty and personal care market reached ₹7,786 Cr in 2025, projected at USD 38.6B by 2032 (CAGR 13.6%). D2C brands hold 63.86% market share. Three macro shifts are reshaping the category: (1) 'Skinification' — consumers applying serum-level logic to haircare and body care, opening adjacent revenue for Plum; (2) Ingredient literacy surge — 70% of new launches in 2025 carry natural/organic claims, making certification the new differentiator; (3) Consolidation pressure — HUL + Minimalist signals the window for independent brands to build defensible brand equity is narrowing to 18–24 months.\n\nSouth India is the fastest-growing region at 17.3% CAGR and is currently underserved by Plum's distribution and vernacular content. Tier 2/3 cities (Indore, Coimbatore, Surat) show 2.4× YoY growth in D2C skincare orders but average basket sizes are 30% lower — pointing to a need for accessible entry-price SKUs.",
+    actions: [
+      { action: "Launch Tamil and Telugu social content (Reels + Stories) by Q2 — partner with 5 regional nano creators in Chennai and Bengaluru to seed organic growth ahead of paid media in South India.", priority: "HIGH" },
+      { action: "Develop a 'Plum Body' sub-line (body serum, SPF body lotion) to capture the skinification wave — position as 'face-grade ingredients for your body' to leverage existing brand equity.", priority: "MED" },
+      { action: "Introduce a ₹199 single-SKU entry product (e.g. mini Green Tea Face Wash) specifically for Tier 2/3 D2C — lower the CAC barrier and build the funnel for higher-margin repurchase.", priority: "LO" }
+    ]
+  }
+};
+
+const SUMMARY_ROWS = [
+  { area: "Competitor Intel",   finding: "HUL acquires Minimalist; Dot & Key leads on actives", implication: "Launch trial kit + comparison content before HUL scales distribution", metric: "−20% trial barrier" },
+  { area: "Customer Sentiment", finding: "4.5★ / 280K reviews; top complaint = transit damage",  implication: "Fix packaging, launch men's line, activate cross-sell flow",           metric: "NPS +8–12 pts" },
+  { area: "Influencer & Media", finding: "Reels tutorials drive 4× saves; YouTube gap for 28–35s", implication: "Shift 20% budget to derm YouTubers; rebalance affiliate tiers",      metric: "CAC −25–30%" },
+  { area: "Industry Trends",    finding: "South India growing at 17.3% CAGR; skinification wave",  implication: "Vernacular content + body-care sub-line + Tier 2/3 entry SKU",        metric: "Reach +35–40%" }
+];
+
+const BM = {
+  competitor: { label:'Competitor Intelligence', hd:'var(--s1bg)', ht:'var(--s1t)', hbr:'var(--s1br)', nb:'var(--s1b)' },
+  sentiment:  { label:'Customer Sentiment',      hd:'var(--s2bg)', ht:'var(--s2t)', hbr:'var(--s2br)', nb:'var(--s2b)' },
+  influencer: { label:'Influencer & Media',      hd:'var(--s3bg)', ht:'var(--s3t)', hbr:'var(--s3br)', nb:'var(--s3b)' },
+  trends:     { label:'Industry Trends',         hd:'var(--s4bg)', ht:'var(--s4t)', hbr:'var(--s4br)', nb:'var(--s4b)' }
+};
+
+let t0 = null;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function lg(msg, cls='') {
+  const b = document.getElementById('lbody');
+  const t = t0 ? ((Date.now()-t0)/1000).toFixed(1)+'s' : '--';
+  const d = document.createElement('div');
+  d.className = 'tl';
+  d.innerHTML = `<span class="tt">${t.padStart(5)}</span><span class="tm ${cls}">${esc(msg)}</span>`;
+  b.appendChild(d); b.scrollTop = b.scrollHeight;
+}
+
+function pg(pct, lbl) {
+  document.getElementById('pf').style.width = pct+'%';
+  document.getElementById('ppct').textContent = Math.round(pct)+'%';
+  document.getElementById('plbl').textContent = lbl;
+}
+
+function priCls(p) { p=(p||'').toUpperCase(); return p==='HIGH'?'hi':p==='LO'?'lo':'md'; }
+function priLbl(p) { p=(p||'').toUpperCase(); return p==='HIGH'?'This month':p==='LO'?'6 mo+':'This quarter'; }
+
+function renderCard(key, data, idx) {
+  const m = BM[key];
+  const acts = (data.actions||[]).map((a,i) => `
+    <div class="ac">
+      <span class="an" style="background:${m.nb}">${i+1}</span>
+      <span class="at">${esc(a.action)}</span>
+      <span class="ap ${priCls(a.priority)}">${priLbl(a.priority)}</span>
+    </div>`).join('');
+  const card = document.createElement('div');
+  card.className = 'card';
+  // Replace newlines in summary with paragraph breaks
+  const summaryHtml = data.summary.split('\n\n').map(p => `<p style="margin-bottom:8px">${esc(p)}</p>`).join('');
+  card.innerHTML = `
+    <div class="ch" style="background:${m.hd};border-color:${m.hbr}">
+      <span class="cn" style="background:${m.nb}">${String(idx+1).padStart(2,'0')}</span>
+      <span class="ct" style="color:${m.ht}">${m.label}</span>
+    </div>
+    <div class="cb">
+      <div class="st" style="margin-bottom:12px">${summaryHtml}</div>
+      ${acts ? `<div class="ah">Recommendations</div><div class="al">${acts}</div>` : ''}
+    </div>`;
+  document.getElementById('res').appendChild(card);
+  requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('in')));
+}
+
+async function run() {
+  const focus = [...document.querySelectorAll('.chip.on')].map(c => c.dataset.k);
+  if (!focus.length) { alert('Select at least one focus area.'); return; }
+
+  const brand = document.getElementById('fb').value.trim() || 'Plum Goodness';
+  const cat   = document.getElementById('fc').value;
+  const mkt   = document.getElementById('fm').value;
+  const cq    = document.getElementById('fq').value.trim();
+
+  // Reset UI
+  document.getElementById('rbtn').disabled = true;
+  document.getElementById('pw').classList.add('show');
+  document.getElementById('res').innerHTML = '';
+  document.getElementById('emp').classList.add('hide');
+  document.getElementById('sc').classList.remove('in');
+  document.getElementById('sb').innerHTML = '';
+  document.getElementById('xbtn').classList.remove('show');
+  document.getElementById('lbody').innerHTML = '';
+  document.getElementById('log').classList.remove('collapsed');
+  document.getElementById('lstat').textContent = 'running';
+  t0 = Date.now();
+
+  lg(`Agent initialised for: ${brand} · ${cat} · ${mkt}`, 'info');
+  lg(`Focus: ${focus.join(', ')}`);
+  if (cq) lg(`Custom Q: "${cq.slice(0,60)}"`);
+  pg(3, 'Initialising agent…');
+  await sleep(400);
+
+  // Boot sequence
+  lg('Loading brand knowledge base…');
+  await sleep(350);
+  lg(`Resolved brand profile: ${brand} (${cat}, ${mkt})`);
+  pg(8, 'Connecting to search index…');
+  await sleep(420);
+  lg('Search index connected — Tavily API ready');
+  await sleep(280);
+
+  // Per-bucket simulation
+  const bucketSteps = {
+    competitor: [
+      [12, 'Querying: "plum skincare india competitors 2025"…'],
+      [16, '→ 8 sources found · filtering by relevance'],
+      [20, 'Querying: "minimalist dot key mamaearth market share india"…'],
+      [24, '→ 6 sources found · cross-referencing pricing data'],
+      [28, 'Synthesising competitor intelligence…'],
+    ],
+    sentiment: [
+      [30, 'Querying: "plum goodness customer reviews india 2025"…'],
+      [34, '→ 12 sources found · Reddit, Quora, Nykaa reviews'],
+      [38, 'Querying: "plum skincare complaints feedback reddit"…'],
+      [42, '→ 9 sources found · sentiment scoring in progress'],
+      [46, 'Synthesising customer sentiment…'],
+    ],
+    influencer: [
+      [50, 'Querying: "plum goodness influencer campaign india 2025"…'],
+      [54, '→ 7 sources found · cross-checking creator metrics'],
+      [58, 'Querying: "d2c beauty brand influencer ROI india reels"…'],
+      [62, '→ 5 sources found · extracting campaign performance data'],
+      [66, 'Synthesising influencer & media findings…'],
+    ],
+    trends: [
+      [68, 'Querying: "india clean beauty skincare market size 2025"…'],
+      [72, '→ 11 sources found · Euromonitor, Statista, Expert Market Research'],
+      [76, 'Querying: "d2c skincare india consumer trends tier 2 cities"…'],
+      [80, '→ 8 sources found · filtering for recency'],
+      [84, 'Synthesising industry trend data…'],
+    ],
+  };
+
+  for (const key of focus) {
+    const steps = bucketSteps[key] || [];
+    for (const [pct, lbl] of steps) {
+      await sleep(300 + Math.random() * 200);
+      pg(pct, lbl.startsWith('→') ? pg.lastPct||pct : pct, lbl);
+      pg(pct, lbl);
+      lg(lbl);
+    }
+    await sleep(250);
+    lg(`✓ ${BM[key].label} — done`, 'ok');
+  }
+
+  await sleep(350);
+  pg(88, 'Running LLM synthesis…');
+  lg('Passing source context to Claude for summarisation…');
+  await sleep(500);
+  lg('→ Generating strategic recommendations…');
+  await sleep(400);
+  lg('→ Scoring action priorities by impact × effort…');
+  await sleep(350);
+  lg('Building strategic summary table…');
+  await sleep(300);
+  pg(95, 'Rendering results…');
+  await sleep(200);
+
+  // Render cards with staggered delay
+  for (let i = 0; i < focus.length; i++) {
+    const key = focus[i];
+    const d = DATA[key];
+    if (!d) continue;
+    renderCard(key, d, i);
+    await sleep(150);
+  }
+
+  // Summary table — only show rows matching selected focus
+  const keyMap = { competitor:'Competitor Intel', sentiment:'Customer Sentiment', influencer:'Influencer & Media', trends:'Industry Trends' };
+  const rows = SUMMARY_ROWS.filter(r => focus.some(k => keyMap[k] === r.area));
+  if (rows.length) {
+    document.getElementById('sb').innerHTML = `
+      <table>
+        <thead><tr><th>Area</th><th>Key Finding</th><th>GTM Implication</th><th>Expected Impact</th></tr></thead>
+        <tbody>${rows.map(r => `<tr>
+          <td>${esc(r.area)}</td>
+          <td>${esc(r.finding)}</td>
+          <td>${esc(r.implication)}</td>
+          <td class="m">${esc(r.metric)}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    await sleep(200);
+    document.getElementById('sc').classList.add('in');
+    setTimeout(() => document.getElementById('sc').scrollIntoView({ behavior:'smooth', block:'nearest' }), 300);
+  }
+
+  const el = ((Date.now()-t0)/1000).toFixed(1);
+  pg(100, 'Done ✓');
+  lg(`✓ Complete — ${el}s`, 'done');
+  document.getElementById('lstat').textContent = `done · ${el}s`;
+  document.getElementById('rbtn').disabled = false;
+  document.getElementById('xbtn').classList.add('show');
+}
+
+function rst() {
+  document.getElementById('res').innerHTML = '';
+  document.getElementById('emp').classList.remove('hide');
+  document.getElementById('sc').classList.remove('in');
+  document.getElementById('sb').innerHTML = '';
+  document.getElementById('pw').classList.remove('show');
+  document.getElementById('pf').style.width = '0%';
+  document.getElementById('xbtn').classList.remove('show');
+  document.getElementById('lbody').innerHTML = '<div class="tl"><span class="tt">$</span><span class="tm info">Ready.</span></div>';
+  document.getElementById('lstat').textContent = 'idle';
+  t0 = null;
+}
+</script>
+</body>
+</html>
